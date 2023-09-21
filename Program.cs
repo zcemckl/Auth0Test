@@ -1,13 +1,11 @@
 ﻿using Auth0.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SampleMvcApp.Support;
-using System.Net;
-
-using Microsoft.IdentityModel.Logging;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +18,20 @@ builder.Services.AddAuth0WebAppAuthentication(options =>
     options.ClientSecret = builder.Configuration["Auth0:ClientSecret"];
     options.Scope = builder.Configuration["Auth0:Scope"];
     options.ResponseType = builder.Configuration["Auth0:ResponseType"];
+    options.OpenIdConnectEvents = new OpenIdConnectEvents();
+    options.OpenIdConnectEvents.OnAuthorizationCodeReceived += AuthCodeReceived;
+    options.OpenIdConnectEvents.OnTokenResponseReceived += TokensReceived;
 });
+
+Task TokensReceived(TokenResponseReceivedContext context)
+{
+    return Task.CompletedTask;
+}
+
+Task AuthCodeReceived(AuthorizationCodeReceivedContext context)
+{
+    return Task.CompletedTask;
+}
 
 // Configure the HTTP request pipeline.
 builder.Services.ConfigureSameSiteNoneCookies();
